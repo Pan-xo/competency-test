@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOIL: Leadership Potential Inventory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .answer-option {
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .answer-option.selected {
+            background-color: #DBEAFE; /* Light SOIL Blue */
+            border-color: #2563EB; /* SOIL Blue */
+        }
+        .progress-bar-fill {
+            transition: width 0.3s ease-in-out;
+        }
+        #save-btn:disabled, #submit-name-btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .soil-blue-bg {
+            background-color: #2563EB;
+        }
+        .soil-blue-text {
+            color: #2563EB;
+        }
+        .soil-blue-border {
+             border-color: #2563EB;
+        }
+        .hover\:soil-blue-bg-darker:hover {
+            background-color: #1D4ED8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+    <div id="quiz-container" class="w-full max-w-3xl bg-white rounded-xl shadow-lg p-6 md:p-10">
+
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <div class="text-center">
+                <svg class="mx-auto h-12 w-auto text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+                </svg>
+                <h1 class="mt-4 text-2xl md:text-3xl font-bold text-gray-900">SOIL Leadership Potential Inventory</h1>
+                <p class="mt-4 text-gray-600">This assessment is designed to help understand your unique approach to leadership and problem-solving.</p>
+                <div class="mt-6 text-left bg-gray-100 p-4 rounded-lg border border-gray-200">
+                    <h2 class="font-semibold text-gray-800">Instructions:</h2>
+                    <ul class="list-disc list-inside mt-2 text-gray-600 space-y-1">
+                        <li>You will be presented with 25 scenarios.</li>
+                        <li>For each, select the action closest to how you would naturally handle the situation.</li>
+                        <li>There are no right or wrong answers. Please respond honestly.</li>
+                        <li class="font-semibold text-gray-700">You will have 15 minutes to complete the assessment.</li>
+                    </ul>
+                </div>
+                <button id="start-btn" class="mt-8 w-full md:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700">
+                    Start Assessment
+                </button>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900">Question <span id="question-number"></span>/<span id="total-questions"></span></h2>
+                <div class="flex items-center space-x-4">
+                    <div id="timer-display" class="text-lg font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-md">15:00</div>
+                    <div id="progress-container" class="w-24 md:w-32 h-2.5 bg-gray-200 rounded-full">
+                        <div id="progress-bar" class="soil-blue-bg h-2.5 rounded-full progress-bar-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <p id="question-text" class="text-lg text-gray-700 mt-4 mb-6"></p>
+            <div id="answer-options" class="space-y-4"></div>
+            <div id="error-message" class="text-red-500 text-sm mt-4 hidden">Please select an option to continue.</div>
+            <button id="next-btn" class="mt-8 w-full md:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700">
+                Next Question
+            </button>
+        </div>
+
+        <!-- Pre-Results Screen (NEW) -->
+        <div id="pre-results-screen" class="hidden">
+            <div class="text-center">
+                <svg class="mx-auto h-12 w-auto text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                <h1 class="mt-4 text-2xl md:text-3xl font-bold text-gray-900">Submit your name to generate result</h1>
+                <p class="mt-2 text-gray-600">Please provide your name to view your personalized leadership profile.</p>
+                <div class="mt-6 flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                    <input type="text" id="name-input" placeholder="Enter your name or email" class="flex-grow p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#2563EB] focus:border-[#2563EB]">
+                    <button id="submit-name-btn" class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white soil-blue-bg hover:soil-blue-bg-darker">
+                        Generate Results
+                    </button>
+                 </div>
+                 <div id="name-error-message" class="text-red-500 text-sm mt-3"></div>
+            </div>
+        </div>
+
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="hidden">
+             <div class="text-center">
+                <svg class="mx-auto h-12 w-auto soil-blue-text" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h1 id="results-title" class="mt-4 text-2xl md:text-3xl font-bold text-gray-900">Assessment Complete</h1>
+                <p id="results-subtitle" class="mt-2 text-gray-600">Thank you for completing the inventory. Below is a summary of your leadership potential profile.</p>
+            </div>
+            <div class="mt-8 bg-gray-100 p-6 rounded-lg border border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Overall Readiness Score</h2>
+                <p class="text-4xl font-bold soil-blue-text mt-2"><span id="total-score"></span>/100</p>
+                <p class="text-gray-600 mt-1">This score reflects your alignment with competencies for the next level.</p>
+            </div>
+            <div class="mt-6 bg-gray-100 p-6 rounded-lg border border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Primary Behavioral Tendency</h2>
+                <p id="primary-tendency" class="text-xl font-bold text-gray-800 mt-2"></p>
+                <p id="tendency-description" class="text-gray-600 mt-1"></p>
+            </div>
+            <div class="mt-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Competency Breakdown</h2>
+                <div id="competency-results" class="space-y-4"></div>
+            </div>
+            
+             <button id="restart-btn" class="mt-8 w-full md:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900">
+                Take Again
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CONFIGURATION FOR GOOGLE FORM ---
+        const googleFormActionUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfmLzw3xO_8_sFNjXwMbQHr0irUAOLRRBHpl4QozDnABj9k3Q/formResponse';
+
+        const formEntries = {
+            // Summary entries
+            name: 'entry.576314975',
+            overallScore: 'entry.2142855307',
+            primaryTendency: 'entry.644606701',
+            
+            // Competency summary entries
+            teamLeadership: 'entry.995583643',
+            clientInfluence: 'entry.2092953121',
+            strategicAcumen: 'entry.157191479',
+            commercialAcumen: 'entry.1713941897',
+            inclusion: 'entry.2028849452',
+            adaptability: 'entry.923400425',
+            
+            // --- 25 ENTRY IDs FOR EACH QUESTION'S SCORE ---
+            q1: 'entry.1895754426',
+            q2: 'entry.147513083',
+            q3: 'entry.1725022340',
+            q4: 'entry.1531625172',
+            q5: 'entry.1927897783',
+            q6: 'entry.45718656',
+            q7: 'entry.430426414',
+            q8: 'entry.366203454',
+            q9: 'entry.958955576',
+            q10: 'entry.1455423035',
+            q11: 'entry.1835424004',
+            q12: 'entry.1888923782',
+            q13: 'entry.970228336',
+            q14: 'entry.377862256',
+            q15: 'entry.1491080390',
+            q16: 'entry.516435640',
+            q17: 'entry.1416379831',
+            q18: 'entry.899110869',
+            q19: 'entry.1877608088',
+            q20: 'entry.441965387',
+            q21: 'entry.481787797',
+            q22: 'entry.135806353',
+            q23: 'entry.1146700962',
+            q24: 'entry.1970065509',
+            q25: 'entry.1748970613'
+        };
+        // ------------------------------------
+
+        const questions = [
+            // Q1
+            {
+                question: "A junior analyst on your team, normally reliable, has missed a deadline for a critical internal deliverable. Which action are you most inclined to take?",
+                competency: "Team Leadership & Development",
+                answers: [
+                    { text: "Take the analyst aside to discuss what happened, understand any obstacles they faced, and work with them to adjust the plan.", style: "Strategist / People Leader" },
+                    { text: "Take on the remaining work yourself to ensure the project timeline isn't compromised, and make a note to check in with the analyst later.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Immediately flag the delay to the Project Manager to ensure they have full visibility of any potential risks to the overall timeline.", style: "Passive / Deferential" },
+                    { text: "Review the team's workflow process to see if there was a systemic issue that contributed to the delay.", style: "Proactive Problem-Solver" }
+                ]
+            },
+            // Q2
+            {
+                question: "During a client presentation, a senior executive aggressively challenges a key assumption in your model. Which action are you most inclined to take?",
+                competency: "Client & Stakeholder Influence",
+                answers: [
+                    { text: "Validate the executive’s concern as a fair point, briefly explain the rationale, and offer to conduct a follow-up sensitivity analysis.", style: "Strategist / People Leader" },
+                    { text: "Defend the model's integrity by detailing the data and methodology that support the assumption.", style: "Proactive Problem-Solver" },
+                    { text: "Defer to your Project Manager, allowing them to lead the response as the senior team member in the room.", style: "Passive / Deferential" },
+                    { text: "Acknowledge the challenge and pivot the conversation to the broader strategic implications of the findings.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q3
+            {
+                question: "You discover a more efficient way to complete a task using a new AI tool, but it's not the organization's standard approved methodology. Which action are you most inclined to take?",
+                competency: "Strategic & Digital Acumen",
+                answers: [
+                    { text: "Present the new method to your manager with a data-driven comparison of the efficiency gains versus the standard approach.", style: "Proactive Problem-Solver" },
+                    { text: "Adopt the new tool for your work, trusting that the superior results will speak for themselves.", style: "Passive / Deferential" },
+                    { text: "Formally document the potential of the new tool and submit it to the program leadership for consideration as a new best practice.", style: "Strategist / People Leader" },
+                    { text: "Stick to the approved methodology to ensure consistency and avoid any potential quality assurance issues.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+             // Q4
+            {
+                question: "You overhear a casual joke between two colleagues that could be perceived as exclusionary. Which action are you most inclined to take?",
+                competency: "Inclusion & Collaboration",
+                answers: [
+                    { text: "Let it go, assuming it was unintentional and not worth creating a conflict over.", style: "Passive / Deferential" },
+                    { text: "Find a moment to speak privately with the colleagues, explaining calmly how such comments might impact others on the team.", style: "Strategist / People Leader" },
+                    { text: "Mention the importance of inclusive language during the next team meeting as a general reminder to everyone.", style: "Proactive Problem-Solver" },
+                    { text: "Make a confidential note of the incident to discuss with HR or your performance coach.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q5
+            {
+                question: "Team morale is visibly low due to long hours on a tight deadline. Which action are you most inclined to take?",
+                competency: "Team Leadership & Development",
+                answers: [
+                    { text: "Call a quick team huddle to acknowledge their hard work, recognize specific contributions, and reiterate the importance of the project's goal.", style: "Proactive Problem-Solver" },
+                    { text: "Organize a team dinner or social event for the end of the week to give everyone something to look forward to.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Personally sit with the most stressed team members to help them with their tasks and shoulder some of the load.", style: "Strategist / People Leader" },
+                    { text: "Re-evaluate the project plan to see if any tasks can be reprioritized or deferred to ease the immediate pressure.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q6
+            {
+                question: "A client keeps asking for additional work that is clearly outside the agreed-upon scope. Which action are you most inclined to take?",
+                competency: "Commercial Acumen",
+                answers: [
+                    { text: "Acknowledge the request's importance and frame it as a new opportunity that can be scoped and staffed as a follow-on phase.", style: "Strategist / People Leader" },
+                    { text: "Perform a quick analysis of the request to see if it can be absorbed by the team without a major impact on the timeline.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Politely refer the client to the Statement of Work (SOW), explaining that the request falls outside the agreed-upon boundaries.", style: "Proactive Problem-Solver" },
+                    { text: "Escalate the issue to the organization's leadership, asking for guidance on how to handle the commercial conversation.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q7
+            {
+                question: "A junior team member asks for advice on which training courses to take. Which action are you most inclined to take?",
+                competency: "Team Leadership & Development",
+                answers: [
+                    { text: "Advise them on the foundational courses that are most critical for their current role and have helped you succeed.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Ask them about their long-term career aspirations and help them build a learning plan that aligns with those goals.", style: "Strategist / People Leader" },
+                    { text: "Recommend courses in emerging areas like GenAI or ESG, as these are strategically important for the future.", style: "Proactive Problem-Solver" },
+                    { text: "Direct them to SOIL's top-rated courses and suggest they choose what they find most interesting.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q8
+            {
+                question: "You find a minor, non-critical data error in a report already sent to the client. Which action are you most inclined to take?",
+                competency: "Client & Stakeholder Influence",
+                answers: [
+                    { text: "Immediately alert your manager, provide a corrected version, and recommend transparently sending an updated copy to the client.", style: "Strategist / People Leader" },
+                    { text: "Correct the master version of the report internally and wait to see if the client notices before sending a revision.", style: "Passive / Deferential" },
+                    { text: "Assess the materiality of the error; if it doesn't impact the key conclusions, make a note but take no immediate action.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Send a brief, low-key email to the client with the updated page, noting a 'minor revision' was made.", style: "Proactive Problem-Solver" }
+                ]
+            },
+            // Q9
+            {
+                question: "Your project requires expertise that no one on your immediate team possesses. Which action are you most inclined to take?",
+                competency: "Strategic & Digital Acumen",
+                answers: [
+                    { text: "Task the team with conducting rapid research to get up to speed on the topic as quickly as possible.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Proactively search the organization’s internal network to find a Subject Matter Expert (SME) to bring onto the project as an advisor.", style: "Strategist / People Leader" },
+                    { text: "Clearly define the knowledge gap in your next status report to leadership, flagging it as a project risk.", style: "Passive / Deferential" },
+                    { text: "Frame the project around the team's existing strengths, trying to deliver value without the specific niche expertise.", style: "Proactive Problem-Solver" }
+                ]
+            },
+            // Q10
+            {
+                question: "A key client stakeholder is consistently unresponsive, delaying your team's progress. Which action are you most inclined to take?",
+                competency: "Client & Stakeholder Influence",
+                answers: [
+                    { text: "Continue to document your outreach and flag the dependency and potential delays in your project status reports.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Ask a colleague who has a better relationship with the stakeholder to try and get a response.", style: "Passive / Deferential" },
+                    { text: "Propose a short, 15-minute 'decision-making' call to make it as easy as possible for the stakeholder to give you what you need.", style: "Strategist / People Leader" },
+                    { text: "Escalate the issue to your manager and the client leadership sponsor.", style: "Proactive Problem-Solver" }
+                ]
+            },
+            // Q11
+            {
+                question: "In a casual client conversation, they mention a business challenge completely unrelated to your project. Which action are you most inclined to take?",
+                competency: "Commercial Acumen",
+                answers: [
+                    { text: "Ask thoughtful follow-up questions to better understand the problem and offer to connect them with a relevant expert.", style: "Strategist / People Leader" },
+                    { text: "Make a mental note and pass the information on to a senior leader in that practice area after the meeting.", style: "Proactive Problem-Solver" },
+                    { text: "Briefly mention that there is expertise in that area and suggest they look into it.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Steer the conversation back to the current project to remain focused on the contracted scope of work.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q12
+            {
+                question: "You are leading a team with two analysts who have very different working styles (creative vs. methodical). Which action are you most inclined to take?",
+                competency: "Team Leadership & Development",
+                answers: [
+                    { text: "Establish a clear, standardized process for all major tasks to ensure consistency in the team's output.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Assign tasks that align with their individual strengths to maximize their contribution and job satisfaction.", style: "Strategist / People Leader" },
+                    { text: "Encourage them to pair up on tasks frequently to learn from each other's styles.", style: "Proactive Problem-Solver" },
+                    { text: "Set clear goals for the team's output and allow them the autonomy to figure out their own collaborative workflow.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q13
+            {
+                question: "You receive difficult, constructive feedback from your manager that you partially disagree with. Which action are you most inclined to take?",
+                competency: "Adaptability & Resilience",
+                answers: [
+                    { text: "Listen, thank them for the feedback, and ask for specific examples to better understand their perspective.", style: "Strategist / People Leader" },
+                    { text: "Defend your position on the points you believe are inaccurate, providing evidence to support your view.", style: "Passive / Deferential" },
+                    { text: "Acknowledge the feedback and focus on improving in the areas where you agree there is a gap.", style: "Proactive Problem-Solver" },
+                    { text: "Ask for time to reflect on the feedback and schedule a follow-up conversation to discuss it further.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q14
+            {
+                question: "The project's initial strategy is proving less effective than anticipated due to new market data. Which action are you most inclined to take?",
+                competency: "Strategic & Digital Acumen",
+                answers: [
+                    { text: "Raise the issue with leadership immediately, highlighting the new data and the need for a strategic pivot.", style: "Proactive Problem-Solver" },
+                    { text: "Conduct a deeper analysis with your team to develop a fully-formed alternative strategy before presenting the problem.", style: "Strategist / People Leader" },
+                    { text: "Implement small, incremental adjustments to the current strategy to see if you can improve performance.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Double down on executing the current strategy more aggressively, assuming the issue is with implementation, not the plan itself.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q15
+            {
+                question: "You have two competing priorities: finalizing a key client deliverable and preparing a thoughtful performance review for a junior team member. Which action are you most inclined to take?",
+                competency: "Team Leadership & Development",
+                answers: [
+                    { text: "Focus on the client deliverable first, as external commitments are the highest priority, and then turn to the review.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Block out dedicated time for each, ensuring the performance review is not rushed, even if it means working late.", style: "Strategist / People Leader" },
+                    { text: "Delegate parts of the client deliverable preparation to other team members to free up your time for the review.", style: "Proactive Problem-Solver" },
+                    { text: "Postpone the performance review conversation by a week, communicating the reason to the team member.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q16
+            {
+                question: "A client is skeptical about the ROI of a proposed digital transformation project. Which action are you most inclined to take?",
+                competency: "Commercial Acumen",
+                answers: [
+                    { text: "Present case studies and benchmark data showing how similar projects have benefited other companies in their industry.", style: "Proactive Problem-Solver" },
+                    { text: "Focus the conversation on the tangible business outcomes, such as projected cost savings or revenue growth.", style: "Strategist / People Leader" },
+                    { text: "Detail the advanced features of the technology to demonstrate its cutting-edge capabilities.", style: "Passive / Deferential" },
+                    { text: "Reframe the conversation around the strategic risks of *not* making the investment.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q17
+            {
+                question: "You must present your team's findings to a group of senior partners. Which action are you most inclined to take?",
+                competency: "Client & Stakeholder Influence",
+                answers: [
+                    { text: "Focus your preparation on anticipating their questions and honing the core strategic message of your findings.", style: "Strategist / People Leader" },
+                    { text: "Create a highly detailed and polished deck that showcases the analytical rigor of the team's work.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Conduct several practice runs with your team and peers to ensure your delivery is flawless.", style: "Proactive Problem-Solver" },
+                    { text: "Schedule pre-briefing meetings with one or two of the key partners to build alignment before the formal presentation.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q18
+            {
+                question: "A project you are leading is not achieving the expected results, and the client is concerned. Which action are you most inclined to take?",
+                competency: "Client & Stakeholder Influence",
+                answers: [
+                    { text: "Initiate a transparent conversation with the client to acknowledge the issues and collaborate on a revised plan.", style: "Proactive Problem-Solver" },
+                    { text: "First, conduct an internal root cause analysis with your team to fully diagnose the problem before engaging the client.", style: "Strategist / People Leader" },
+                    { text: "Increase the frequency of status updates to the client to provide more visibility and manage their concerns.", style: "Passive / Deferential" },
+                    { text: "Reassure the client that such challenges are normal and that you are confident the team can get back on track.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q19
+            {
+                question: "When giving feedback on a slide deck, a junior analyst has missed the mark on the core message. Which action are you most inclined to take?",
+                competency: "Team Leadership & Development",
+                answers: [
+                    { text: "Sit with them and co-rework the storyline on a whiteboard, explaining your strategic thinking as you go.", style: "Strategist / People Leader" },
+                    { text: "Give them specific, high-level feedback on the narrative and ask them to take another pass at restructuring it themselves.", style: "Proactive Problem-Solver" },
+                    { text: "Edit the deck yourself to fix the storyline, and then walk them through the changes you made and why.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Provide detailed, written feedback on each slide to give them a clear roadmap for corrections.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q20
+            {
+                question: "Your project needs to pivot in a new direction. Which action are you most inclined to take?",
+                competency: "Adaptability & Resilience",
+                answers: [
+                    { text: "Hold a team meeting to explain the strategic reasons for the pivot, linking it to the project's ultimate goals, and facilitate a Q&A.", style: "Strategist / People Leader" },
+                    { text: "Create a detailed new work plan and assign new tasks so the team can hit the ground running immediately.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Meet with team members individually to explain how the change will affect their specific roles and responsibilities.", style: "Proactive Problem-Solver" },
+                    { text: "Announce the pivot and show your own enthusiasm and confidence in the new direction to motivate the team.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q21
+            {
+                question: "A Partner asks you for a quick project update in the hallway. Which action are you most inclined to take?",
+                competency: "Client & Stakeholder Influence",
+                answers: [
+                    { text: "Give a 30-second summary covering the main achievement, the next step, and any critical risks.", style: "Strategist / People Leader" },
+                    { text: "Tell them the project is 'on track' and that you'll send them the latest status report.", style: "Passive / Deferential" },
+                    { text: "Ask what specifically they are interested in so you can provide the most relevant information.", style: "Proactive Problem-Solver" },
+                    { text: "Mention a recent positive client comment to leave them with a good impression.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q22
+            {
+                question: "You are interviewing a candidate for a junior role. Which action are you most inclined to take?",
+                competency: "Team Leadership & Development",
+                answers: [
+                    { text: "Focus on behavioral questions about how they've handled past challenges and collaborated with teams.", style: "Strategist / People Leader" },
+                    { text: "Present them with a short case study or problem related to the project work to see their analytical skills in action.", style: "Proactive Problem-Solver" },
+                    { text: "Ask about their long-term career goals to assess their ambition and fit with the firm's trajectory.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Describe the team culture and the challenges of the role to gauge their resilience and enthusiasm.", style: "Passive / Deferential" }
+                ]
+            },
+            // Q23
+            {
+                question: "Your analysis reveals a conflict between a client's most profitable business unit and their stated ESG goals. Which action are you most inclined to take?",
+                competency: "Commercial Acumen",
+                answers: [
+                    { text: "Present the finding as a strategic choice, quantifying both the financial contribution and the ESG risk to facilitate a leadership discussion.", style: "Strategist / People Leader" },
+                    { text: "Focus the report on the profitability analysis but include the ESG concerns in the appendix as a secondary risk factor.", style: "Passive / Deferential" },
+                    { text: "Develop solutions that could help mitigate the ESG risk of the profitable unit, presenting a problem and a potential solution together.", style: "Proactive Problem-Solver" },
+                    { text: "Flag the sensitivity of the finding to your manager and ask for their guidance on how to present it to the client.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q24
+            {
+                question: "You have been asked to lead an internal firm initiative in addition to your demanding client project. Which action are you most inclined to take?",
+                competency: "Strategic & Digital Acumen",
+                answers: [
+                    { text: "Develop a clear charter and work plan for the initiative, identifying areas where you can delegate tasks to the initiative team.", style: "Strategist / People Leader" },
+                    { text: "Have a frank conversation with your leadership about your capacity, asking for help in prioritizing between the two commitments.", style: "Passive / Deferential" },
+                    { text: "Focus on getting a 'quick win' for the internal initiative to build momentum, even if you can't devote consistent time to it.", style: "Proactive Problem-Solver" },
+                    { text: "Ensure your client work remains your #1 priority, fitting in the initiative work during evenings and weekends.", style: "Reliable Executor / Risk Manager" }
+                ]
+            },
+            // Q25
+            {
+                question: "Your team needs to work with a client from a very different cultural background. Which action are you most inclined to take?",
+                competency: "Inclusion & Collaboration",
+                answers: [
+                    { text: "Arrange a pre-mortem with the team to discuss potential cultural friction points and agree on a communication strategy.", style: "Proactive Problem-Solver" },
+                    { text: "Research the client's cultural norms and provide a short briefing to your team on key points of etiquette and business practices.", style: "Strategist / People Leader" },
+                    { text: "Emphasize to the team the importance of listening and observing in the initial meetings to learn the client's style.", style: "Reliable Executor / Risk Manager" },
+                    { text: "Leverage the firm's global network to see if a colleague from that region can provide informal advice or coaching.", style: "Passive / Deferential" }
+                ]
+            }
+        ];
+
+        const stylePoints = {
+            "Strategist / People Leader": 4,
+            "Proactive Problem-Solver": 3,
+            "Reliable Executor / Risk Manager": 2,
+            "Passive / Deferential": 1
+        };
+        
+        const tendencyDescriptions = {
+            "Strategist / People Leader": "You tend to focus on the big picture, empower others, and build relationships to drive long-term success.",
+            "Proactive Problem-Solver": "You are adept at identifying issues, taking initiative, and implementing practical solutions to improve processes and outcomes.",
+            "Reliable Executor / Risk Manager": "You excel at delivering high-quality work, managing risks, and ensuring that processes are followed consistently.",
+            "Passive / Deferential": "You tend to follow established procedures and defer to others for key decisions, ensuring stability and consistency."
+        };
+
+        // --- DOM ELEMENTS ---
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const preResultsScreen = document.getElementById('pre-results-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const submitNameBtn = document.getElementById('submit-name-btn');
+
+        const questionNumberEl = document.getElementById('question-number');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const questionTextEl = document.getElementById('question-text');
+        const answerOptionsEl = document.getElementById('answer-options');
+        const errorMessageEl = document.getElementById('error-message');
+        const nameErrorMessageEl = document.getElementById('name-error-message');
+        const progressBar = document.getElementById('progress-bar');
+        const timerDisplay = document.getElementById('timer-display');
+        
+        const resultsTitle = document.getElementById('results-title');
+        const resultsSubtitle = document.getElementById('results-subtitle');
+        const totalScoreEl = document.getElementById('total-score');
+        const primaryTendencyEl = document.getElementById('primary-tendency');
+        const tendencyDescriptionEl = document.getElementById('tendency-description');
+        const competencyResultsEl = document.getElementById('competency-results');
+        const nameInput = document.getElementById('name-input');
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let timerInterval;
+        let timeLeft = 15 * 60;
+        let finalResults = {}; 
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            finalResults = {};
+            timeLeft = 15 * 60;
+            timerDisplay.textContent = '15:00';
+            nameInput.value = '';
+            nameErrorMessageEl.textContent = '';
+            submitNameBtn.disabled = false;
+            
+            startScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            preResultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            totalQuestionsEl.textContent = questions.length;
+            startTimer();
+            displayQuestion();
+        }
+        
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    calculateResults(true);
+                }
+            }, 1000);
+        }
+
+        function displayQuestion() {
+            errorMessageEl.classList.add('hidden');
+            const question = questions[currentQuestionIndex];
+            questionNumberEl.textContent = currentQuestionIndex + 1;
+            questionTextEl.textContent = question.question;
+            answerOptionsEl.innerHTML = '';
+            question.answers.forEach((answer, index) => {
+                const option = document.createElement('div');
+                option.className = 'answer-option p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100';
+                option.textContent = answer.text;
+                option.dataset.index = index;
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.answer-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    errorMessageEl.classList.add('hidden');
+                });
+                answerOptionsEl.appendChild(option);
+            });
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = 'Finish Assessment';
+            } else {
+                nextBtn.textContent = 'Next Question';
+            }
+        }
+
+        function nextQuestion() {
+            const selectedOption = document.querySelector('.answer-option.selected');
+            if (!selectedOption) {
+                errorMessageEl.classList.remove('hidden');
+                return;
+            }
+            const answerIndex = parseInt(selectedOption.dataset.index);
+            const question = questions[currentQuestionIndex];
+            const selectedAnswer = question.answers[answerIndex];
+            const points = stylePoints[selectedAnswer.style];
+            
+            userAnswers[currentQuestionIndex] = points;
+            
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion();
+            } else {
+                clearInterval(timerInterval);
+                calculateResults(false);
+            }
+        }
+
+        function calculateResults(timeUp = false) {
+            let totalPoints = 0;
+            const styleCounts = {};
+            const competencyScores = {};
+            const competencyDefinitions = {};
+
+            userAnswers.forEach((score, index) => {
+                if (typeof score !== 'number') return;
+
+                totalPoints += score;
+                const question = questions[index];
+                const competency = question.competency;
+                const answerStyle = Object.keys(stylePoints).find(key => stylePoints[key] === score);
+                
+                if (answerStyle) {
+                    styleCounts[answerStyle] = (styleCounts[answerStyle] || 0) + 1;
+                }
+
+                if (!competencyScores[competency]) {
+                    competencyScores[competency] = { points: 0, count: 0 };
+                }
+                competencyScores[competency].points += score;
+                competencyScores[competency].count++;
+            });
+
+            const maxPossiblePoints = userAnswers.filter(s => typeof s === 'number').length * 4;
+            const overallScore = maxPossiblePoints > 0 ? Math.round((totalPoints / maxPossiblePoints) * 100) : 0;
+
+            let primaryTendency = "Not enough data";
+            if (Object.keys(styleCounts).length > 0) {
+                 primaryTendency = Object.keys(styleCounts).reduce((a, b) => styleCounts[a] > styleCounts[b] ? a : b);
+            }
+            
+            const competencyOrder = [
+                "Team Leadership & Development", "Client & Stakeholder Influence", "Strategic & Digital Acumen",
+                "Inclusion & Collaboration", "Commercial Acumen", "Adaptability & Resilience"
+            ];
+            
+            competencyOrder.forEach(competency => {
+                const scoreData = competencyScores[competency] || { points: 0, count: 0 };
+                const averageScore = scoreData.count > 0 ? Math.round((scoreData.points / (scoreData.count * 4)) * 100) : 0;
+                competencyDefinitions[competency] = averageScore;
+            });
+            
+            finalResults = {
+                overallScore,
+                primaryTendency,
+                competencies: competencyDefinitions
+            };
+            
+            quizScreen.classList.add('hidden');
+            preResultsScreen.classList.remove('hidden');
+        }
+
+        function displayFinalResults() {
+             // Populate the results screen with the calculated data
+            totalScoreEl.textContent = finalResults.overallScore;
+            primaryTendencyEl.textContent = finalResults.primaryTendency;
+            tendencyDescriptionEl.textContent = tendencyDescriptions[finalResults.primaryTendency] || "";
+
+            competencyResultsEl.innerHTML = '';
+            for (const competency in finalResults.competencies) {
+                const averageScore = finalResults.competencies[competency];
+                const competencyDiv = document.createElement('div');
+                competencyDiv.className = 'flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200';
+                competencyDiv.innerHTML = `
+                    <p class="font-medium text-gray-700">${competency}</p>
+                    <p class="font-bold text-lg text-gray-800">${averageScore}%</p>
+                `;
+                competencyResultsEl.appendChild(competencyDiv);
+            }
+
+            // Hide the pre-results screen and show the final results
+            preResultsScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+        }
+        
+        async function handleNameSubmit() {
+            const name = nameInput.value.trim();
+            if (!name) {
+                nameErrorMessageEl.textContent = 'Please enter your name to continue.';
+                return;
+            }
+            nameErrorMessageEl.textContent = '';
+            submitNameBtn.disabled = true;
+            submitNameBtn.textContent = 'Submitting...';
+
+            const formData = new FormData();
+            formData.append(formEntries.name, name);
+            formData.append(formEntries.overallScore, finalResults.overallScore);
+            formData.append(formEntries.primaryTendency, finalResults.primaryTendency);
+
+            formData.append(formEntries.teamLeadership, finalResults.competencies['Team Leadership & Development'] || 'N/A');
+            formData.append(formEntries.clientInfluence, finalResults.competencies['Client & Stakeholder Influence'] || 'N/A');
+            formData.append(formEntries.strategicAcumen, finalResults.competencies['Strategic & Digital Acumen'] || 'N/A');
+            formData.append(formEntries.inclusion, finalResults.competencies['Inclusion & Collaboration'] || 'N/A');
+            formData.append(formEntries.commercialAcumen, finalResults.competencies['Commercial Acumen'] || 'N/A');
+            formData.append(formEntries.adaptability, finalResults.competencies['Adaptability & Resilience'] || 'N/A');
+            
+            userAnswers.forEach((score, index) => {
+                const entryKey = `q${index + 1}`;
+                if (formEntries[entryKey] && formEntries[entryKey].startsWith('entry.')) {
+                    formData.append(formEntries[entryKey], score || 0);
+                }
+            });
+
+            try {
+                await fetch(googleFormActionUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                // Since we can't get a success response with no-cors, we assume it worked and proceed.
+                displayFinalResults();
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                // Even if the save fails, show the user their results.
+                displayFinalResults();
+            }
+        }
+
+        function restartQuiz() {
+            resultsScreen.classList.add('hidden');
+            preResultsScreen.classList.add('hidden');
+            quizScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+            
+            progressBar.style.width = '0%';
+            nextBtn.textContent = 'Next Question';
+        }
+
+        startBtn.addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', nextQuestion);
+        restartBtn.addEventListener('click', restartQuiz);
+        submitNameBtn.addEventListener('click', handleNameSubmit);
+    </script>
+</body>
+</html>
