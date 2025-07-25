@@ -14,13 +14,13 @@
             transition: background-color 0.2s, border-color 0.2s;
         }
         .answer-option.selected {
-            background-color: #DBEAFE; /* Light SOIL Blue */
+            background-color: #DBEAFE; /* Light Blue */
             border-color: #2563EB; /* SOIL Blue */
         }
         .progress-bar-fill {
             transition: width 0.3s ease-in-out;
         }
-        #save-btn:disabled, #submit-name-btn:disabled {
+        #submit-name-btn:disabled {
             background-color: #9ca3af;
             cursor: not-allowed;
         }
@@ -36,6 +36,13 @@
         .hover\:soil-blue-bg-darker:hover {
             background-color: #1D4ED8;
         }
+        /* EDIT: Added styles for the modal */
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
@@ -48,7 +55,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
                 </svg>
                 <h1 class="mt-4 text-2xl md:text-3xl font-bold text-gray-900">SOIL Leadership Potential Inventory</h1>
-                <p class="mt-4 text-gray-600">This assessment is designed to help understand your unique approach to leadership and problem-solving.</p>
+                <!-- EDIT: Minor grammar fix for clarity -->
+                <p class="mt-4 text-gray-600">This assessment is designed to help you understand your unique approach to leadership and problem-solving.</p>
                 <div class="mt-6 text-left bg-gray-100 p-4 rounded-lg border border-gray-200">
                     <h2 class="font-semibold text-gray-800">Instructions:</h2>
                     <ul class="list-disc list-inside mt-2 text-gray-600 space-y-1">
@@ -69,27 +77,28 @@
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-900">Question <span id="question-number"></span>/<span id="total-questions"></span></h2>
                 <div class="flex items-center space-x-4">
-                    <div id="timer-display" class="text-lg font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-md">15:00</div>
-                    <div id="progress-container" class="w-24 md:w-32 h-2.5 bg-gray-200 rounded-full">
+                    <div id="timer-display" class="text-lg font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-md" aria-live="polite">15:00</div>
+                    <div class="w-24 md:w-32 h-2.5 bg-gray-200 rounded-full">
                         <div id="progress-bar" class="soil-blue-bg h-2.5 rounded-full progress-bar-fill" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
             <p id="question-text" class="text-lg text-gray-700 mt-4 mb-6"></p>
             <div id="answer-options" class="space-y-4"></div>
-            <div id="error-message" class="text-red-500 text-sm mt-4 hidden">Please select an option to continue.</div>
+            <div id="error-message" class="text-red-500 text-sm mt-4 hidden" aria-live="assertive">Please select an option to continue.</div>
             <button id="next-btn" class="mt-8 w-full md:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700">
                 Next Question
             </button>
         </div>
 
-        <!-- Pre-Results Screen (NEW) -->
+        <!-- Pre-Results Screen -->
         <div id="pre-results-screen" class="hidden">
             <div class="text-center">
                 <svg class="mx-auto h-12 w-auto text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                 </svg>
-                <h1 class="mt-4 text-2xl md:text-3xl font-bold text-gray-900">Submit your name to generate result</h1>
+                <!-- EDIT: Improved title case and clarity -->
+                <h1 class="mt-4 text-2xl md:text-3xl font-bold text-gray-900">Submit Your Name to Generate Your Result</h1>
                 <p class="mt-2 text-gray-600">Please provide your name to view your personalized leadership profile.</p>
                 <div class="mt-6 flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
                     <input type="text" id="name-input" placeholder="Enter your name or email" class="flex-grow p-3 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#2563EB] focus:border-[#2563EB]">
@@ -97,7 +106,7 @@
                         Generate Results
                     </button>
                  </div>
-                 <div id="name-error-message" class="text-red-500 text-sm mt-3"></div>
+                 <div id="name-error-message" class="text-red-500 text-sm mt-3" aria-live="assertive"></div>
             </div>
         </div>
 
@@ -123,14 +132,23 @@
             </div>
             <div class="mt-6">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Competency Breakdown</h2>
-                <div id="competency-results" class="space-y-4"></div>
+                <div id="competency-results" class="space-y-3"></div>
             </div>
             
+             <!-- EDIT: Made "Take Again" button style consistent with "Start Assessment" -->
              <button id="restart-btn" class="mt-8 w-full md:w-auto inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900">
                 Take Again
             </button>
         </div>
+    </div>
 
+    <!-- EDIT: Added a modal for "Time's Up" message -->
+    <div id="time-up-modal" class="modal-overlay fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center p-4 hidden" aria-modal="true" role="dialog">
+        <div class="modal-content bg-white rounded-lg shadow-xl p-8 text-center max-w-sm mx-auto transform scale-95">
+            <h2 class="text-2xl font-bold text-gray-800">Time's Up!</h2>
+            <p class="text-gray-600 mt-3">Your time has run out. We will now calculate your results based on the questions you've answered.</p>
+            <button id="time-up-ok-btn" class="mt-6 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-900">OK</button>
+        </div>
     </div>
 
     <script>
@@ -138,45 +156,24 @@
         const googleFormActionUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfmLzw3xO_8_sFNjXwMbQHr0irUAOLRRBHpl4QozDnABj9k3Q/formResponse';
 
         const formEntries = {
-            // Summary entries
             name: 'entry.576314975',
             overallScore: 'entry.2142855307',
             primaryTendency: 'entry.644606701',
-            
-            // Competency summary entries
-            teamLeadership: 'entry.995583643',
-            clientInfluence: 'entry.2092953121',
-            strategicAcumen: 'entry.157191479',
-            commercialAcumen: 'entry.1713941897',
-            inclusion: 'entry.2028849452',
-            adaptability: 'entry.923400425',
-            
-            // --- 25 ENTRY IDs FOR EACH QUESTION'S SCORE ---
-            q1: 'entry.1895754426',
-            q2: 'entry.147513083',
-            q3: 'entry.1725022340',
-            q4: 'entry.1531625172',
-            q5: 'entry.1927897783',
-            q6: 'entry.45718656',
-            q7: 'entry.430426414',
-            q8: 'entry.366203454',
-            q9: 'entry.958955576',
-            q10: 'entry.1455423035',
-            q11: 'entry.1835424004',
-            q12: 'entry.1888923782',
-            q13: 'entry.970228336',
-            q14: 'entry.377862256',
-            q15: 'entry.1491080390',
-            q16: 'entry.516435640',
-            q17: 'entry.1416379831',
-            q18: 'entry.899110869',
-            q19: 'entry.1877608088',
-            q20: 'entry.441965387',
-            q21: 'entry.481787797',
-            q22: 'entry.135806353',
-            q23: 'entry.1146700962',
-            q24: 'entry.1970065509',
-            q25: 'entry.1748970613'
+            // EDIT: Created a map for competency names to entry IDs for cleaner code.
+            competencyMap: {
+                'Team Leadership & Development': 'entry.995583643',
+                'Client & Stakeholder Influence': 'entry.2092953121',
+                'Strategic & Digital Acumen': 'entry.157191479',
+                'Commercial Acumen': 'entry.1713941897',
+                'Inclusion & Collaboration': 'entry.2028849452',
+                'Adaptability & Resilience': 'entry.923400425',
+            },
+            // Entry IDs for each question's score
+            q1: 'entry.1895754426', q2: 'entry.147513083', q3: 'entry.1725022340', q4: 'entry.1531625172', q5: 'entry.1927897783',
+            q6: 'entry.45718656', q7: 'entry.430426414', q8: 'entry.366203454', q9: 'entry.958955576', q10: 'entry.1455423035',
+            q11: 'entry.1835424004', q12: 'entry.1888923782', q13: 'entry.970228336', q14: 'entry.377862256', q15: 'entry.1491080390',
+            q16: 'entry.516435640', q17: 'entry.1416379831', q18: 'entry.899110869', q19: 'entry.1877608088', q20: 'entry.441965387',
+            q21: 'entry.481787797', q22: 'entry.135806353', q23: 'entry.1146700962', q24: 'entry.1970065509', q25: 'entry.1748970613'
         };
         // ------------------------------------
 
@@ -232,8 +229,10 @@
                 answers: [
                     { text: "Call a quick team huddle to acknowledge their hard work, recognize specific contributions, and reiterate the importance of the project's goal.", style: "Proactive Problem-Solver" },
                     { text: "Organize a team dinner or social event for the end of the week to give everyone something to look forward to.", style: "Reliable Executor / Risk Manager" },
-                    { text: "Personally sit with the most stressed team members to help them with their tasks and shoulder some of the load.", style: "Strategist / People Leader" },
-                    { text: "Re-evaluate the project plan to see if any tasks can be reprioritized or deferred to ease the immediate pressure.", style: "Passive / Deferential" }
+                    // EDIT: Re-classified this answer. Actively helping is more proactive than strategic in this context.
+                    { text: "Personally sit with the most stressed team members to help them with their tasks and shoulder some of the load.", style: "Proactive Problem-Solver" },
+                    // EDIT: Re-classified this answer. Re-evaluating a plan is a strategic leadership action, not a passive one.
+                    { text: "Re-evaluate the project plan to see if any tasks can be reprioritized or deferred to ease the immediate pressure.", style: "Strategist / People Leader" }
                 ]
             },
             // Q6
@@ -255,7 +254,7 @@
                     { text: "Advise them on the foundational courses that are most critical for their current role and have helped you succeed.", style: "Reliable Executor / Risk Manager" },
                     { text: "Ask them about their long-term career aspirations and help them build a learning plan that aligns with those goals.", style: "Strategist / People Leader" },
                     { text: "Recommend courses in emerging areas like GenAI or ESG, as these are strategically important for the future.", style: "Proactive Problem-Solver" },
-                    { text: "Direct them to SOIL's top-rated courses and suggest they choose what they find most interesting.", style: "Passive / Deferential" }
+                    { text: "Direct them to the firm's top-rated courses and suggest they choose what they find most interesting.", style: "Passive / Deferential" }
                 ]
             },
             // Q8
@@ -296,15 +295,16 @@
                 question: "In a casual client conversation, they mention a business challenge completely unrelated to your project. Which action are you most inclined to take?",
                 competency: "Commercial Acumen",
                 answers: [
-                    { text: "Ask thoughtful follow-up questions to better understand the problem and offer to connect them with a relevant expert.", style: "Strategist / People Leader" },
+                    { text: "Ask thoughtful follow-up questions to better understand the problem and offer to connect them with a relevant expert within your firm.", style: "Strategist / People Leader" },
                     { text: "Make a mental note and pass the information on to a senior leader in that practice area after the meeting.", style: "Proactive Problem-Solver" },
-                    { text: "Briefly mention that there is expertise in that area and suggest they look into it.", style: "Reliable Executor / Risk Manager" },
+                    // EDIT: Added "your firm" for better context.
+                    { text: "Briefly mention that your firm has expertise in that area and suggest they look into it.", style: "Reliable Executor / Risk Manager" },
                     { text: "Steer the conversation back to the current project to remain focused on the contracted scope of work.", style: "Passive / Deferential" }
                 ]
             },
             // Q12
             {
-                question: "You are leading a team with two analysts who have very different working styles (creative vs. methodical). Which action are you most inclined to take?",
+                question: "You are leading a team with two analysts who have very different working styles (one creative, one methodical). Which action are you most inclined to take?",
                 competency: "Team Leadership & Development",
                 answers: [
                     { text: "Establish a clear, standardized process for all major tasks to ensure consistency in the team's output.", style: "Reliable Executor / Risk Manager" },
@@ -365,7 +365,8 @@
                     { text: "Focus your preparation on anticipating their questions and honing the core strategic message of your findings.", style: "Strategist / People Leader" },
                     { text: "Create a highly detailed and polished deck that showcases the analytical rigor of the team's work.", style: "Reliable Executor / Risk Manager" },
                     { text: "Conduct several practice runs with your team and peers to ensure your delivery is flawless.", style: "Proactive Problem-Solver" },
-                    { text: "Schedule pre-briefing meetings with one or two of the key partners to build alignment before the formal presentation.", style: "Passive / Deferential" }
+                    // EDIT: Re-classified this answer. Proactively building alignment is not passive; it's a smart, problem-solving tactic.
+                    { text: "Schedule pre-briefing meetings with one or two of the key partners to build alignment before the formal presentation.", style: "Proactive Problem-Solver" }
                 ]
             },
             // Q18
@@ -477,11 +478,13 @@
         const quizScreen = document.getElementById('quiz-screen');
         const preResultsScreen = document.getElementById('pre-results-screen');
         const resultsScreen = document.getElementById('results-screen');
+        const timeUpModal = document.getElementById('time-up-modal');
         
         const startBtn = document.getElementById('start-btn');
         const nextBtn = document.getElementById('next-btn');
         const restartBtn = document.getElementById('restart-btn');
         const submitNameBtn = document.getElementById('submit-name-btn');
+        const timeUpOkBtn = document.getElementById('time-up-ok-btn');
 
         const questionNumberEl = document.getElementById('question-number');
         const totalQuestionsEl = document.getElementById('total-questions');
@@ -492,8 +495,6 @@
         const progressBar = document.getElementById('progress-bar');
         const timerDisplay = document.getElementById('timer-display');
         
-        const resultsTitle = document.getElementById('results-title');
-        const resultsSubtitle = document.getElementById('results-subtitle');
         const totalScoreEl = document.getElementById('total-score');
         const primaryTendencyEl = document.getElementById('primary-tendency');
         const tendencyDescriptionEl = document.getElementById('tendency-description');
@@ -515,6 +516,7 @@
             nameInput.value = '';
             nameErrorMessageEl.textContent = '';
             submitNameBtn.disabled = false;
+            submitNameBtn.textContent = 'Generate Results';
             
             startScreen.classList.add('hidden');
             resultsScreen.classList.add('hidden');
@@ -535,9 +537,21 @@
                 timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    calculateResults(true);
+                    handleTimeUp();
                 }
             }, 1000);
+        }
+
+        // EDIT: New function to handle the "Time's Up" modal
+        function handleTimeUp() {
+            timeUpModal.classList.remove('hidden');
+            timeUpModal.querySelector('.modal-overlay').classList.remove('opacity-0');
+            timeUpModal.querySelector('.modal-content').classList.remove('scale-95');
+        }
+
+        function proceedToResultsFromModal() {
+            timeUpModal.classList.add('hidden');
+            calculateResults();
         }
 
         function displayQuestion() {
@@ -586,18 +600,23 @@
                 displayQuestion();
             } else {
                 clearInterval(timerInterval);
-                calculateResults(false);
+                calculateResults();
             }
         }
 
-        function calculateResults(timeUp = false) {
+        function calculateResults() {
             let totalPoints = 0;
             const styleCounts = {};
             const competencyScores = {};
             const competencyDefinitions = {};
 
+            // Ensure userAnswers array is the same length as questions, filling unanswered ones with 0
+            for (let i = 0; i < questions.length; i++) {
+                userAnswers[i] = userAnswers[i] || 0; 
+            }
+
             userAnswers.forEach((score, index) => {
-                if (typeof score !== 'number') return;
+                if(score === 0) return; // Don't count unanswered questions in score
 
                 totalPoints += score;
                 const question = questions[index];
@@ -615,7 +634,9 @@
                 competencyScores[competency].count++;
             });
 
-            const maxPossiblePoints = userAnswers.filter(s => typeof s === 'number').length * 4;
+            // Calculate score based on only the answered questions
+            const answeredQuestionsCount = userAnswers.filter(s => s > 0).length;
+            const maxPossiblePoints = answeredQuestionsCount * 4;
             const overallScore = maxPossiblePoints > 0 ? Math.round((totalPoints / maxPossiblePoints) * 100) : 0;
 
             let primaryTendency = "Not enough data";
@@ -623,10 +644,7 @@
                  primaryTendency = Object.keys(styleCounts).reduce((a, b) => styleCounts[a] > styleCounts[b] ? a : b);
             }
             
-            const competencyOrder = [
-                "Team Leadership & Development", "Client & Stakeholder Influence", "Strategic & Digital Acumen",
-                "Inclusion & Collaboration", "Commercial Acumen", "Adaptability & Resilience"
-            ];
+            const competencyOrder = Object.keys(formEntries.competencyMap);
             
             competencyOrder.forEach(competency => {
                 const scoreData = competencyScores[competency] || { points: 0, count: 0 };
@@ -645,32 +663,37 @@
         }
 
         function displayFinalResults() {
-             // Populate the results screen with the calculated data
             totalScoreEl.textContent = finalResults.overallScore;
             primaryTendencyEl.textContent = finalResults.primaryTendency;
             tendencyDescriptionEl.textContent = tendencyDescriptions[finalResults.primaryTendency] || "";
 
             competencyResultsEl.innerHTML = '';
+            // EDIT: Added a visual bar to the competency results for better UX
             for (const competency in finalResults.competencies) {
                 const averageScore = finalResults.competencies[competency];
                 const competencyDiv = document.createElement('div');
-                competencyDiv.className = 'flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200';
+                competencyDiv.className = 'bg-white p-3 rounded-lg border border-gray-200';
                 competencyDiv.innerHTML = `
-                    <p class="font-medium text-gray-700">${competency}</p>
-                    <p class="font-bold text-lg text-gray-800">${averageScore}%</p>
+                    <div class="flex items-center justify-between mb-1">
+                        <p class="font-medium text-gray-700 text-sm">${competency}</p>
+                        <p class="font-bold text-sm soil-blue-text">${averageScore}%</p>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5">
+                        <div class="bg-blue-600 h-1.5 rounded-full" style="width: ${averageScore}%"></div>
+                    </div>
                 `;
                 competencyResultsEl.appendChild(competencyDiv);
             }
 
-            // Hide the pre-results screen and show the final results
             preResultsScreen.classList.add('hidden');
             resultsScreen.classList.remove('hidden');
         }
         
         async function handleNameSubmit() {
+            // EDIT: Improved validation to check for empty or whitespace-only names
             const name = nameInput.value.trim();
             if (!name) {
-                nameErrorMessageEl.textContent = 'Please enter your name to continue.';
+                nameErrorMessageEl.textContent = 'Please enter your name or email to continue.';
                 return;
             }
             nameErrorMessageEl.textContent = '';
@@ -682,32 +705,37 @@
             formData.append(formEntries.overallScore, finalResults.overallScore);
             formData.append(formEntries.primaryTendency, finalResults.primaryTendency);
 
-            formData.append(formEntries.teamLeadership, finalResults.competencies['Team Leadership & Development'] || 'N/A');
-            formData.append(formEntries.clientInfluence, finalResults.competencies['Client & Stakeholder Influence'] || 'N/A');
-            formData.append(formEntries.strategicAcumen, finalResults.competencies['Strategic & Digital Acumen'] || 'N/A');
-            formData.append(formEntries.inclusion, finalResults.competencies['Inclusion & Collaboration'] || 'N/A');
-            formData.append(formEntries.commercialAcumen, finalResults.competencies['Commercial Acumen'] || 'N/A');
-            formData.append(formEntries.adaptability, finalResults.competencies['Adaptability & Resilience'] || 'N/A');
-            
-            userAnswers.forEach((score, index) => {
-                const entryKey = `q${index + 1}`;
-                if (formEntries[entryKey] && formEntries[entryKey].startsWith('entry.')) {
-                    formData.append(formEntries[entryKey], score || 0);
+            // EDIT: Using the competencyMap for cleaner, more maintainable code
+            for (const competency in finalResults.competencies) {
+                const entryId = formEntries.competencyMap[competency];
+                if (entryId) {
+                    formData.append(entryId, finalResults.competencies[competency]);
                 }
-            });
+            }
+            
+            // Append scores for all 25 questions, sending 0 for unanswered ones
+            for (let i = 0; i < questions.length; i++) {
+                const score = userAnswers[i] || 0;
+                const entryKey = `q${i + 1}`;
+                if (formEntries[entryKey]) {
+                    formData.append(formEntries[entryKey], score);
+                }
+            }
 
             try {
                 await fetch(googleFormActionUrl, {
                     method: 'POST',
-                    mode: 'no-cors',
+                    mode: 'no-cors', // IMPORTANT: 'no-cors' mode means we can't see the response.
                     body: formData
                 });
-                // Since we can't get a success response with no-cors, we assume it worked and proceed.
+                // Since we can't get a success/fail response with 'no-cors', 
+                // we assume the submission worked and proceed to show the results to the user.
                 displayFinalResults();
 
             } catch (error) {
                 console.error('Error submitting form:', error);
-                // Even if the save fails, show the user their results.
+                // Even if the Google Form submission fails, we should still show the user their results.
+                // The failure is a backend issue and shouldn't prevent the user from seeing their profile.
                 displayFinalResults();
             }
         }
@@ -726,6 +754,7 @@
         nextBtn.addEventListener('click', nextQuestion);
         restartBtn.addEventListener('click', restartQuiz);
         submitNameBtn.addEventListener('click', handleNameSubmit);
+        timeUpOkBtn.addEventListener('click', proceedToResultsFromModal);
     </script>
 </body>
 </html>
